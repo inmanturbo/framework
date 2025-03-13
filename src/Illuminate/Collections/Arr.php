@@ -666,7 +666,7 @@ class Arr
      * Filter the array by an array of matchers.
      *
      * @param  array  $array
-     * @param  mixed  $matchers
+     * @param  array  $matchers
      * @param  mixed  $default
      * @return array
      */
