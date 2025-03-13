@@ -12,6 +12,33 @@ use stdClass;
 
 class SupportArrTest extends TestCase
 {
+    public function testMatchWhere(): void
+    {
+        // Filtered by matches where callable or expression evaluates to true
+        $this->assertEquals(['b' => 2], Arr::matchWhere(['a' => 1, 'b' => 2], ['b' => true === true]));
+        $this->assertEquals(['b' => 2], Arr::matchWhere(['a' => 1, 'b' => 2], ['b' => fn ($value, $key) => $value % 2 === 0]));
+
+        // no matches, but default evaluates to true for one or more elements
+        $this->assertEquals(['a' => 1, 'b' => 2], Arr::matchWhere(['a' => 1, 'b' => 2], default: fn ($value, $key) => is_numeric($value)));
+
+        $this->assertEquals(['b' => 2], Arr::matchWhere(['a' => 1, 'b' => 2], default: fn ($value, $key) => $value > 1));
+        $this->assertEquals(['a' => 1], Arr::matchWhere(['a' => 1, 'b' => 2], default: fn ($value, $key) => $key === 'a'));
+
+        $this->assertEquals(['a' => 1, 'b' => 2], Arr::matchWhere(['a' => 1, 'b' => 2], default: true));
+        $this->assertEquals(['a' => 1, 'b' => 2], Arr::matchWhere(['a' => 1, 'b' => 2],['c' => false], default: true));
+
+        // filtered out matches, with default set to true
+        $this->assertEquals(['a' => 1], Arr::matchWhere(['a' => 1, 'b' => 2], ['b' => fn ($value, $key) => $value % 2 !== 0], true));
+
+        // matches and default evaluate to false
+        $this->assertEmpty(Arr::matchWhere(['a' => 1, 'b' => 1], ['b' => fn ($value, $key) => $value % 2 === 0]));
+        $this->assertEmpty(Arr::matchWhere(['a' => 1, 'b' => 1], ['b' => false]));
+
+        // no matches
+        $this->assertEmpty(Arr::matchWhere(['a' => 1, 'b' => 1]));
+        $this->assertEmpty(Arr::matchWhere(['a' => 1, 'b' => 1], ['c' => true]));
+    }
+
     public function testAccessible(): void
     {
         $this->assertTrue(Arr::accessible([]));

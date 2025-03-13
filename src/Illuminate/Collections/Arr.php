@@ -663,6 +663,29 @@ class Arr
     }
 
     /**
+     * Filter the array by an array of matchers.
+     *
+     * @param  array  $array
+     * @param  mixed  $matchers
+     * @param  mixed  $default
+     * @return array
+     */
+    public static function matchWhere($array, $matchers = [], $default = false)
+    {
+        return static::where($array, function ($value, $key) use ($matchers, $default) {
+            if (!static::has($matchers, $key)) {
+                return is_callable($default) ? $default($value, $key) : $default;
+            }
+
+            if (is_callable($matchers[$key])) {
+                return $matchers[$key]($value, $key);
+            }
+
+            return $matchers[$key];
+        });
+    }
+
+    /**
      * Push an item onto the beginning of an array.
      *
      * @param  array  $array
